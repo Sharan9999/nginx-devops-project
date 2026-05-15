@@ -10,7 +10,7 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/sharan9999/nginx-devops-project.git'
+                git branch: 'main', url: 'https://github.com/sharan9999/nginx-devops-project.git'
             }
         }
 
