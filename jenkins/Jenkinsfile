@@ -1,0 +1,45 @@
+pipeline {
+
+    agent any
+
+    environment {
+        IMAGE_NAME = "sharan9999/nginx-devops:v1"
+    }
+
+    stages {
+
+        stage('Clone') {
+            steps {
+                git 'https://github.com/sharan9999/nginx-devops-project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME ./app'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+
+                    sh 'docker push $IMAGE_NAME'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/'
+            }
+        }
+    }
+}
